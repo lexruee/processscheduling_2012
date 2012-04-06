@@ -54,7 +54,7 @@ public class FCFS implements pssimulator.Kernel {
     public void systemCallProcessTermination(long timer, Simulator simulator) {
     	
     	
-    	this.running = null;
+    	this.running = this.nil;
     	
     	if(this.readyQueue.size()>0){ 
     		this.running = this.readyQueue.poll(); 

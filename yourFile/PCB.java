@@ -11,17 +11,16 @@ public class PCB  {
 			this.sim = sim;
 			this.pid = pid;
 			this.arrivalTime = time;
-			this.burstTime = sim!=null ? sim.queryBurstRemainingTime(this.pid): 0;
 		}
 		
 
 
 		long queryOverallTime(){
-			return sim.queryOverallTime(pid);
+			return this.sim!=null ? sim.queryOverallTime(pid): 0;
 		}
 		
 		long queryBurstRemainingTime(){
-			return sim.queryBurstRemainingTime(pid);
+			return this.sim!=null ? sim.queryBurstRemainingTime(pid):0;
 		}
 		
 		long getTimer(){
