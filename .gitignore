@@ -1,0 +1,22 @@
+#ignore shell scrips
+*.sh
+
+#ignore all class files
+*.class
+
+#ingore all xml files
+*.xml
+
+
+*~
+
+*.log
+
+.classpath
+.settings
+.project
+
+
+/bin
+
+/cdtl
