@@ -4,89 +4,138 @@
 import pssimulator.Simulator;
 import pssimulator.SimulatorStatistics;
 
-
+import java.io.PrintStream;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Queue;
-
 
 import pssimulator.Simulator;
 import pssimulator.SimulatorStatistics;
 
-
 public class FCFS implements pssimulator.Kernel {
-	
 
- 
-    /* members */
-	public Queue<PCB> readyQueue = new LinkedList<PCB>();
-	public Queue<PCB> jobQueue = new LinkedList<PCB>();
-	public PCB nil = new PCB(null,"Idle", 0);
-	public PCB running = nil;
-	private int savesCount;
-	private long turnArroundTime;
-	private long waitingMeanTime;
-	private int ps = 0;
-	
+    public Queue<Process> readyQueue = new LinkedList<Process>();
+    public List<Process> terminatedProcess = new LinkedList<Process>();
+    public Map<String, IODevice> devices = new HashMap<String, IODevice>();
+    public Process idleProcess = new Process(null, "Idle", 0);
+    public Process running = idleProcess;
+    
+    //accounting information
+    private int savesCount;
+    private long turnArroundTime;
+    private long waitingMeanTime;
+    private int ps = 0;
+    
+    private PrintStream out = System.out;
 
     /* methods */
     public void systemCallInitIODevice(String deviceID, Simulator simulator) {
-    	System.out.println("System Call " + deviceID);
+	out.println("System Call " + deviceID);
+	this.devices.put(deviceID, new IODevice(deviceID));
     }
 
-    public void systemCallProcessCreation(String processId, long timer, Simulator simulator) {
-    	this.ps++;
+    /**
+     * a new process is created
+     */
+    public void systemCallProcessCreation(String processId, long timer,
+	    Simulator simulator) {
+	// create a new process
+	Process p = new Process(simulator, processId, timer);
+	out.println("Offer: " + p);
 
-    	//create a new pcb
-    	PCB p = new PCB(simulator, processId, timer);
-    	System.out.println("Offer: " + p);
-    	//add this pcb to the queue
-    	this.readyQueue.offer(p);
-  
-    	if(this.running.isIdle()){
-    		this.running = this.readyQueue.poll();
-    	}
+	// add this process to the ready queue
+	this.readyQueue.offer(p);
+
     }
 
-    public void systemCallIORequest(String deviceID, long timer, Simulator simulator) {
-    	System.out.println("systemCallIORequest " + deviceID);
+    /**
+     * a user process makes a system call
+     */
+    public void systemCallIORequest(String deviceID, long timer,
+	    Simulator simulator) {
+	out.println("systemCallIORequest pid: " + this.running
+		+ ", device: " + deviceID);
+	// add process to the io waiting queue
+	Process p = this.running;
+	IODevice device = this.devices.get(deviceID);
+	device.offer(p);
+	
+	this.running = this.idleProcess;
+
+	// current running process is place into a waiting queue, save cpu
+	// registers
+	// count context switches
+	this.savesCount++;
     }
 
+    /**
+     * user process terminates
+     */
     public void systemCallProcessTermination(long timer, Simulator simulator) {
-    	
-    	
-    	this.running = this.nil;
-    	
-    	if(this.readyQueue.size()>0){ 
-    		this.running = this.readyQueue.poll(); 
-    		
-    		if(this.readyQueue.size()>0)
-    			this.waitingMeanTime += timer;
-    		
-    		this.turnArroundTime += timer;
-    		this.running.setWaitingTime(timer);
-    		
-    	} else {
-    		this.running = nil;
-    	}
+	Process p = this.running;
+	p.setTerminationTime(timer);
+	this.terminatedProcess.add(p);
+	this.running = this.idleProcess;
+	out.println("Terminate pid: " + this.running + "TAT " + this.running.getCompletionTime());
     }
 
-    public void interruptIODevice(String deviceID, long timer, Simulator simulator) {
-    	System.out.println("interruptIODevice " + deviceID);
+    /**
+     * an io device interrupt occurs
+     */
+    public void interruptIODevice(String deviceID, long timer,
+	    Simulator simulator) {
+	out.println("interruptIODevice " + deviceID + ", running pid: "
+		+ this.running);
+
+	// get the process from the io waiting queue and it put back into the
+	// ready queue
+	IODevice device = this.devices.get(deviceID);
+	Process p = device.poll();
+	this.readyQueue.offer(p);
+
+	p.startWaitingTimer(timer);
     }
 
     public void interruptPreemption(long timer, Simulator simulator) {
-    	System.out.println("interruptPreemption " + this.running);
+	// nothing to do!
     }
 
+    /**
+     * scheduling user processes
+     */
     public String running(long timer, Simulator sim) {
-    	sim.queryOverallTime(this.running.getId());
-    	System.out.println("pid: " + this.running + " waitingTime: "+ this.running.getWaitingTime() + "clock time: " + timer + " Remainig Burst Time: " + this.running.queryBurstRemainingTime() + "Overall Burst Time: " + this.running.queryOverallTime());
-    	return this.running.getId();
+	sim.queryOverallTime(this.running.getId());
+
+	// if system is idle then poll the next process from the ready queue
+	if (this.running.equals(idleProcess)) {
+	    if (!this.readyQueue.isEmpty()) {
+		Process p = this.readyQueue.poll();
+		p.finishWatingTimer(timer);
+		this.running = p;
+	    }
+	}
+
+	out.println("running pid: " + this.running + ", WT: " + this.running.getWaitingTime() + ", current timer: "+timer);
+
+	return this.running.getId();
     }
 
     public void terminate(long timer, SimulatorStatistics sim) {
-    	this.waitingMeanTime = this.waitingMeanTime / this.ps;
-    	this.turnArroundTime = this.turnArroundTime / this.ps;
-    	sim.formatStatistics(System.out, sim.getSystemTime(), sim.getUserTime(), sim.getIdleTime(), sim.getSystemCallsCount(), this.savesCount, this.waitingMeanTime, this.turnArroundTime);
+	
+	for(Process p : this.terminatedProcess){
+	    this.waitingMeanTime += p.getWaitingTime();
+	    this.turnArroundTime += p.getCompletionTime();
+	}
+	this.waitingMeanTime /= this.terminatedProcess.size();
+	this.turnArroundTime /= this.terminatedProcess.size();
+	
+	
+	sim.formatStatistics(System.out, sim.getSystemTime(),
+		sim.getUserTime(), sim.getIdleTime(),
+		sim.getSystemCallsCount(), this.savesCount,
+		this.waitingMeanTime, this.turnArroundTime);
     }
 }

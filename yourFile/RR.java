@@ -10,14 +10,6 @@ import pssimulator.SimulatorStatistics;
 public class RR implements pssimulator.Kernel {
 
     /* members */
-	Queue<PCB> readyQueue = new LinkedList<PCB>();
-	private PCB running;
-	private PCB nil;
-	private long waitingMeanTime;
-	private long turnArroundTime;
-	private int savesCount;
-	private int ps = 0;
-	private int timeQuantum = 2;
 
     /* methods */
 
