@@ -21,7 +21,6 @@ public class RR implements pssimulator.Kernel {
     private int savesCount;
     private long turnArroundTime;
     private long waitingMeanTime;
-    private int ps = 0;
 
     private PrintStream out = System.out;
 
