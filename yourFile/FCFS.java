@@ -41,7 +41,7 @@ public class FCFS implements pssimulator.Kernel {
      */
     public void systemCallProcessCreation(String processId, long timer,
 	    Simulator simulator) {
-	// create a new process
+	// create a new process with pid & arrival time etc...
 	Process p = new Process(simulator, processId, timer);
 	out.println("Offer: " + p);
 
@@ -62,10 +62,10 @@ public class FCFS implements pssimulator.Kernel {
 	IODevice device = this.devices.get(deviceID);
 	device.offer(p);
 	
+	// set the current running process to idle process
+	// another process will be selected in the running method call
 	this.running = this.idleProcess;
 
-	// current running process is place into a waiting queue, save cpu
-	// registers
 	// count context switches
 	this.savesCount++;
     }
@@ -74,9 +74,16 @@ public class FCFS implements pssimulator.Kernel {
      * user process terminates
      */
     public void systemCallProcessTermination(long timer, Simulator simulator) {
+	// get the running process
 	Process p = this.running;
+	// set the completion time
+	// the completion is computed as timer - arrival time
 	p.setCompletionTime(timer);
+	
+	//add the terminated process to a list, for wmt & tat purposes
 	this.terminatedProcess.add(p);
+	
+	//set running process to idle process
 	this.running = this.idleProcess;
 	out.println("Terminate pid: " + this.running + "TAT " + this.running.getCompletionTime());
     }
@@ -95,11 +102,12 @@ public class FCFS implements pssimulator.Kernel {
 	Process p = device.poll();
 	this.readyQueue.offer(p);
 
+	// start waiting timer, because the process is at the end of the ready queue
 	p.startWaitingTimer(timer);
     }
 
     public void interruptPreemption(long timer, Simulator simulator) {
-
+	//nothing do  ere
     }
 
     /**
@@ -114,6 +122,8 @@ public class FCFS implements pssimulator.Kernel {
 		Process p = this.readyQueue.poll();
 		p.finishWatingTimer(timer);
 		this.running = p;
+	    } else {
+		this.running = this.idleProcess;
 	    }
 	}
 

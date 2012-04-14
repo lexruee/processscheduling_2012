@@ -71,9 +71,17 @@ public class RR implements pssimulator.Kernel {
      * user process terminates
      */
     public void systemCallProcessTermination(long timer, Simulator simulator) {
+	
+	// get the running process
 	Process p = this.running;
+	// set the completion time
+	// the completion is computed as timer - arrival time
 	p.setCompletionTime(timer);
+	
+	//add the terminated process to a list, for wmt & tat purposes
 	this.terminatedProcess.add(p);
+	
+	//set running process to idle process
 	this.running = this.idleProcess;
 	out.println("Terminate pid: " + this.running + "TAT "
 		+ this.running.getCompletionTime());
@@ -95,8 +103,7 @@ public class RR implements pssimulator.Kernel {
 	Process p = device.poll();
 	this.readyQueue.offer(p);
 	
-
-
+	// start waiting timer, because the process is at the end of the ready queue
 	p.startWaitingTimer(timer);
 	this.interruptPreemptionHelper(timer, simulator);
     }
@@ -138,6 +145,8 @@ public class RR implements pssimulator.Kernel {
 		Process p = this.readyQueue.poll();
 		p.finishWatingTimer(timer);
 		this.running = p;
+	    } else {
+		this.running = this.idleProcess;
 	    }
 	}
 	
