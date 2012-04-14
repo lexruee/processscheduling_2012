@@ -5,15 +5,17 @@ public class Process {
     private long completionTime;
     private long waitingTimer;
     private boolean waiting;
+    private long rbt;
 
     public Process(String pid, long timer) {
 	this.pid = pid;
 	this.arrivalTime = timer;
 	this.waiting = true;
     }
+    
 
     public String toString() {
-	return this.pid;
+	return this.pid + ", RBT: " + this.rbt;
     }
 
     public String getId() {
@@ -63,6 +65,11 @@ public class Process {
 
     public boolean isWaiting() {
 	return this.waiting;
+    }
+
+    public void setRBT(long rbt) {
+	this.rbt = rbt;
+	
     }
 
 }

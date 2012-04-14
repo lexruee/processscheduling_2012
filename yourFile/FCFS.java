@@ -38,7 +38,7 @@ public class FCFS implements pssimulator.Kernel {
 	this.devices.put(deviceID, new IODevice(deviceID));
     }
 
-    /**
+    /*
      * create a  new process
      */
     public void systemCallProcessCreation(String processId, long timer,
@@ -49,7 +49,7 @@ public class FCFS implements pssimulator.Kernel {
 	this.readyQueue.offer(p);
     }
 
-    /**
+    /*
      * user process makes a system call
      */
     public void systemCallIORequest(String deviceID, long timer,
@@ -65,7 +65,7 @@ public class FCFS implements pssimulator.Kernel {
 	this.savesCount++;
     }
 
-    /**
+    /*
      * user process terminates
      */
     public void systemCallProcessTermination(long timer, Simulator simulator) {
@@ -84,7 +84,7 @@ public class FCFS implements pssimulator.Kernel {
 	    this.isIdle = true;
     }
 
-    /**
+    /*
      * an io device interrupt occurs
      */
     public void interruptIODevice(String deviceID, long timer,
@@ -102,7 +102,7 @@ public class FCFS implements pssimulator.Kernel {
 	//do nothing here
     }
 
-    /**
+    /*
      * return currently running process
      */
     public String running(long timer, Simulator sim) {
