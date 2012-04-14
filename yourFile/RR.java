@@ -11,6 +11,7 @@ import pssimulator.SimulatorStatistics;
 
 public class RR implements pssimulator.Kernel {
 
+    private static final long TIME_QUANTUM = 2;
     public Queue<Process> readyQueue = new LinkedList<Process>();
     public List<Process> terminatedProcess = new LinkedList<Process>();
     public Map<String, IODevice> devices = new HashMap<String, IODevice>();
@@ -62,6 +63,8 @@ public class RR implements pssimulator.Kernel {
 	// registers
 	// count context switches
 	this.savesCount++;
+	
+	this.interruptPreemptionHelper(timer, simulator);
     }
 
     /**
@@ -69,11 +72,13 @@ public class RR implements pssimulator.Kernel {
      */
     public void systemCallProcessTermination(long timer, Simulator simulator) {
 	Process p = this.running;
-	p.setTerminationTime(timer);
+	p.setCompletionTime(timer);
 	this.terminatedProcess.add(p);
 	this.running = this.idleProcess;
 	out.println("Terminate pid: " + this.running + "TAT "
 		+ this.running.getCompletionTime());
+	
+	this.interruptPreemptionHelper(timer, simulator);
     }
 
     /**
@@ -84,17 +89,41 @@ public class RR implements pssimulator.Kernel {
 	out.println("interruptIODevice " + deviceID + ", running pid: "
 		+ this.running);
 
-	// get the process from the io waiting queue and it put back into the
+	// get the process from the io waiting queue and put it back into the
 	// ready queue
 	IODevice device = this.devices.get(deviceID);
 	Process p = device.poll();
 	this.readyQueue.offer(p);
+	
+
 
 	p.startWaitingTimer(timer);
+	this.interruptPreemptionHelper(timer, simulator);
     }
 
     public void interruptPreemption(long timer, Simulator simulator) {
-	// nothing to do!
+	out.println("interruptPreemption for running pid: " + this.running
+		+ ", current Timer: " + timer);
+	// put the running process back into the ready queue
+	Process p = this.running;
+	if (!this.readyQueue.isEmpty()
+		&& simulator.queryBurstRemainingTime(p.getId()) >= 0) {
+	    p.startWaitingTimer(timer);
+	    this.readyQueue.offer(p);
+	    this.running = this.readyQueue.poll();
+	    this.running.finishWatingTimer(timer);
+
+	    // count context switches
+	    this.savesCount++;
+
+	}
+
+	this.interruptPreemptionHelper(timer, simulator);
+    }
+
+    private void interruptPreemptionHelper(long timer, Simulator sim){
+	if(!this.readyQueue.isEmpty())
+	    sim.schedulePreemptionInterrupt(TIME_QUANTUM);
     }
 
     /**
@@ -111,6 +140,7 @@ public class RR implements pssimulator.Kernel {
 		this.running = p;
 	    }
 	}
+	
 
 	out.println("running pid: " + this.running + ", WT: "
 		+ this.running.getWaitingTime() + ", current timer: " + timer);

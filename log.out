@@ -1,0 +1,143 @@
+System Call DISK1
+System Call DISK2
+Offer: PROCESS0
+Offer: PROCESS1
+Offer: PROCESS2
+Offer: PROCESS3
+Offer: PROCESS4
+Instantiation took 0.067 second(s)
+running pid: PROCESS0, WT: 0, current timer: 0
+running pid: PROCESS0, WT: 0, current timer: 0
+running pid: PROCESS0, WT: 0, current timer: 12
+running pid: PROCESS0, WT: 0, current timer: 12
+systemCallIORequest pid: PROCESS0, device: DISK1
+running pid: PROCESS1, WT: 13, current timer: 13
+interruptIODevice DISK1, running pid: PROCESS1
+running pid: PROCESS1, WT: 13, current timer: 19
+running pid: PROCESS1, WT: 13, current timer: 25
+running pid: PROCESS1, WT: 13, current timer: 25
+systemCallIORequest pid: PROCESS1, device: DISK1
+running pid: PROCESS2, WT: 26, current timer: 26
+interruptIODevice DISK1, running pid: PROCESS2
+running pid: PROCESS2, WT: 26, current timer: 32
+running pid: PROCESS2, WT: 26, current timer: 38
+running pid: PROCESS2, WT: 26, current timer: 38
+systemCallIORequest pid: PROCESS2, device: DISK1
+running pid: PROCESS3, WT: 39, current timer: 39
+interruptIODevice DISK1, running pid: PROCESS3
+running pid: PROCESS3, WT: 39, current timer: 45
+running pid: PROCESS3, WT: 39, current timer: 51
+running pid: PROCESS3, WT: 39, current timer: 51
+systemCallIORequest pid: PROCESS3, device: DISK1
+running pid: PROCESS4, WT: 52, current timer: 52
+interruptIODevice DISK1, running pid: PROCESS4
+running pid: PROCESS4, WT: 52, current timer: 58
+running pid: PROCESS4, WT: 52, current timer: 64
+running pid: PROCESS4, WT: 52, current timer: 64
+systemCallIORequest pid: PROCESS4, device: DISK1
+running pid: PROCESS0, WT: 46, current timer: 65
+interruptIODevice DISK1, running pid: PROCESS0
+running pid: PROCESS0, WT: 46, current timer: 71
+running pid: PROCESS0, WT: 46, current timer: 73
+running pid: PROCESS0, WT: 46, current timer: 73
+systemCallIORequest pid: PROCESS0, device: DISK1
+running pid: PROCESS1, WT: 55, current timer: 74
+interruptIODevice DISK1, running pid: PROCESS1
+running pid: PROCESS1, WT: 55, current timer: 80
+running pid: PROCESS1, WT: 55, current timer: 88
+running pid: PROCESS1, WT: 55, current timer: 88
+systemCallIORequest pid: PROCESS1, device: DISK1
+running pid: PROCESS2, WT: 70, current timer: 89
+interruptIODevice DISK1, running pid: PROCESS2
+running pid: PROCESS2, WT: 70, current timer: 95
+running pid: PROCESS2, WT: 70, current timer: 102
+running pid: PROCESS2, WT: 70, current timer: 102
+systemCallIORequest pid: PROCESS2, device: DISK1
+running pid: PROCESS3, WT: 84, current timer: 103
+interruptIODevice DISK1, running pid: PROCESS3
+running pid: PROCESS3, WT: 84, current timer: 109
+running pid: PROCESS3, WT: 84, current timer: 119
+running pid: PROCESS3, WT: 84, current timer: 119
+systemCallIORequest pid: PROCESS3, device: DISK1
+running pid: PROCESS4, WT: 101, current timer: 120
+interruptIODevice DISK1, running pid: PROCESS4
+running pid: PROCESS4, WT: 101, current timer: 126
+running pid: PROCESS4, WT: 101, current timer: 135
+running pid: PROCESS4, WT: 101, current timer: 135
+systemCallIORequest pid: PROCESS4, device: DISK1
+running pid: PROCESS0, WT: 102, current timer: 136
+interruptIODevice DISK1, running pid: PROCESS0
+running pid: PROCESS0, WT: 102, current timer: 142
+running pid: PROCESS0, WT: 102, current timer: 147
+running pid: PROCESS0, WT: 102, current timer: 147
+systemCallIORequest pid: PROCESS0, device: DISK1
+running pid: PROCESS1, WT: 108, current timer: 148
+interruptIODevice DISK1, running pid: PROCESS1
+running pid: PROCESS1, WT: 108, current timer: 154
+running pid: PROCESS1, WT: 108, current timer: 157
+running pid: PROCESS1, WT: 108, current timer: 157
+systemCallIORequest pid: PROCESS1, device: DISK1
+running pid: PROCESS2, WT: 119, current timer: 158
+interruptIODevice DISK1, running pid: PROCESS2
+running pid: PROCESS2, WT: 119, current timer: 164
+running pid: PROCESS2, WT: 119, current timer: 166
+running pid: PROCESS2, WT: 119, current timer: 166
+systemCallIORequest pid: PROCESS2, device: DISK1
+running pid: PROCESS3, WT: 125, current timer: 167
+interruptIODevice DISK1, running pid: PROCESS3
+running pid: PROCESS3, WT: 125, current timer: 173
+running pid: PROCESS3, WT: 125, current timer: 182
+running pid: PROCESS3, WT: 125, current timer: 182
+systemCallIORequest pid: PROCESS3, device: DISK1
+running pid: PROCESS4, WT: 142, current timer: 183
+interruptIODevice DISK1, running pid: PROCESS4
+running pid: PROCESS4, WT: 142, current timer: 189
+running pid: PROCESS4, WT: 142, current timer: 191
+running pid: PROCESS4, WT: 142, current timer: 191
+systemCallIORequest pid: PROCESS4, device: DISK1
+running pid: PROCESS0, WT: 140, current timer: 192
+interruptIODevice DISK1, running pid: PROCESS0
+running pid: PROCESS0, WT: 140, current timer: 198
+running pid: PROCESS0, WT: 140, current timer: 200
+running pid: PROCESS0, WT: 140, current timer: 200
+systemCallIORequest pid: PROCESS0, device: DISK1
+running pid: PROCESS1, WT: 145, current timer: 201
+interruptIODevice DISK1, running pid: PROCESS1
+running pid: PROCESS1, WT: 145, current timer: 207
+Terminate pid: IdleTAT 0
+running pid: PROCESS2, WT: 158, current timer: 212
+running pid: PROCESS2, WT: 158, current timer: 224
+running pid: PROCESS2, WT: 158, current timer: 224
+systemCallIORequest pid: PROCESS2, device: DISK1
+running pid: PROCESS3, WT: 161, current timer: 225
+interruptIODevice DISK1, running pid: PROCESS3
+running pid: PROCESS3, WT: 161, current timer: 231
+running pid: PROCESS3, WT: 161, current timer: 236
+running pid: PROCESS3, WT: 161, current timer: 236
+systemCallIORequest pid: PROCESS3, device: DISK1
+running pid: PROCESS4, WT: 181, current timer: 237
+interruptIODevice DISK1, running pid: PROCESS4
+running pid: PROCESS4, WT: 181, current timer: 243
+running pid: PROCESS4, WT: 181, current timer: 249
+running pid: PROCESS4, WT: 181, current timer: 249
+systemCallIORequest pid: PROCESS4, device: DISK1
+running pid: PROCESS0, WT: 183, current timer: 250
+interruptIODevice DISK1, running pid: PROCESS0
+running pid: PROCESS0, WT: 183, current timer: 256
+Terminate pid: IdleTAT 0
+running pid: PROCESS2, WT: 188, current timer: 261
+Terminate pid: IdleTAT 0
+running pid: PROCESS3, WT: 191, current timer: 273
+Terminate pid: IdleTAT 0
+running pid: PROCESS4, WT: 213, current timer: 288
+Terminate pid: IdleTAT 0
+running pid: Idle, WT: 0, current timer: 296
+ System Time: 296	[100.00%]
+   User Time: 296	[100.00%]
+   Idle Time: 0	[0.00%]
+
+   System Calls: 48
+Registers Saves: 19
+
+Av. Turnaround Time: 266
+     Wait Mean Time: 184

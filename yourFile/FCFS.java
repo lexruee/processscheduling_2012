@@ -16,7 +16,7 @@ import pssimulator.Simulator;
 import pssimulator.SimulatorStatistics;
 
 public class FCFS implements pssimulator.Kernel {
-
+    
     public Queue<Process> readyQueue = new LinkedList<Process>();
     public List<Process> terminatedProcess = new LinkedList<Process>();
     public Map<String, IODevice> devices = new HashMap<String, IODevice>();
@@ -75,7 +75,7 @@ public class FCFS implements pssimulator.Kernel {
      */
     public void systemCallProcessTermination(long timer, Simulator simulator) {
 	Process p = this.running;
-	p.setTerminationTime(timer);
+	p.setCompletionTime(timer);
 	this.terminatedProcess.add(p);
 	this.running = this.idleProcess;
 	out.println("Terminate pid: " + this.running + "TAT " + this.running.getCompletionTime());
@@ -89,7 +89,7 @@ public class FCFS implements pssimulator.Kernel {
 	out.println("interruptIODevice " + deviceID + ", running pid: "
 		+ this.running);
 
-	// get the process from the io waiting queue and it put back into the
+	// get the process from the io waiting queue and put it back into the
 	// ready queue
 	IODevice device = this.devices.get(deviceID);
 	Process p = device.poll();
@@ -99,7 +99,7 @@ public class FCFS implements pssimulator.Kernel {
     }
 
     public void interruptPreemption(long timer, Simulator simulator) {
-	// nothing to do!
+
     }
 
     /**

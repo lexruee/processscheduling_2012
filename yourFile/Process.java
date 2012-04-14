@@ -3,7 +3,7 @@ public class Process {
     private String pid;
     public long arrivalTime;
     private long waitingTime;
-    private long terminationTime;
+    private long completionTime;
     private long waitingTimer;
 
     public Process(pssimulator.Simulator sim, String pid, long timer) {
@@ -32,8 +32,8 @@ public class Process {
 	return this.waitingTime;
     }
 
-    public void setTerminationTime(long timer) {
-	this.terminationTime = timer;
+    public void setCompletionTime(long timer) {
+	this.completionTime = timer;
 
     }
 
@@ -55,7 +55,7 @@ public class Process {
     }
 
     public long getCompletionTime() {
-	return this.terminationTime - this.arrivalTime;
+	return this.completionTime - this.arrivalTime;
     }
 
 }
