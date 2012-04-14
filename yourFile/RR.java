@@ -25,7 +25,7 @@ public class RR implements pssimulator.Kernel {
     private long turnArroundTime;
     private long waitingMeanTime;
     
-    private PrintStream out =  System.out;
+    private PrintStream out =  new PrintStream(new NullOutputStream());
     private boolean isIdle = false;
 
     /* methods */
