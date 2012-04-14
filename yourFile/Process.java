@@ -1,15 +1,15 @@
 public class Process {
-    private pssimulator.Simulator sim;
     private String pid;
     public long arrivalTime;
     private long waitingTime;
     private long completionTime;
     private long waitingTimer;
+    private boolean waiting;
 
-    public Process(pssimulator.Simulator sim, String pid, long timer) {
-	this.sim = sim;
+    public Process(String pid, long timer) {
 	this.pid = pid;
 	this.arrivalTime = timer;
+	this.waiting = true;
     }
 
     public String toString() {
@@ -42,6 +42,7 @@ public class Process {
      */
     public void startWaitingTimer(long timer) {
 	this.waitingTimer = timer;
+	this.waiting = true;
 
     }
 
@@ -49,13 +50,19 @@ public class Process {
      * finish a waiting timer and add the difference to the waiting time of this
      * process
      */
-    public void finishWatingTimer(long timer) {
+    public void stopWaitingTimer(long timer) {
+	this.waiting = false;
 	long timeDifference = timer - this.waitingTimer;
 	this.waitingTime += timeDifference;
+	this.waitingTimer = 0;
     }
 
     public long getCompletionTime() {
 	return this.completionTime - this.arrivalTime;
+    }
+
+    public boolean isWaiting() {
+	return this.waiting;
     }
 
 }

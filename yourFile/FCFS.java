@@ -4,6 +4,7 @@
 import pssimulator.Simulator;
 import pssimulator.SimulatorStatistics;
 
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -20,51 +21,45 @@ public class FCFS implements pssimulator.Kernel {
     public Queue<Process> readyQueue = new LinkedList<Process>();
     public List<Process> terminatedProcess = new LinkedList<Process>();
     public Map<String, IODevice> devices = new HashMap<String, IODevice>();
-    public Process idleProcess = new Process(null, "Idle", 0);
-    public Process running = idleProcess;
+    public Process idleProcess = new Process("Idle", 0);
     
     //accounting information
     private int savesCount;
     private long turnArroundTime;
     private long waitingMeanTime;
     
-    private PrintStream out = System.out;
+    private PrintStream out =  new PrintStream(new NullOutputStream());
+    private boolean isIdle = false;
 
     /* methods */
     public void systemCallInitIODevice(String deviceID, Simulator simulator) {
-	out.println("System Call " + deviceID);
 	this.devices.put(deviceID, new IODevice(deviceID));
     }
 
     /**
-     * a new process is created
+     * create a  new process
      */
     public void systemCallProcessCreation(String processId, long timer,
 	    Simulator simulator) {
-	// create a new process with pid & arrival time etc...
-	Process p = new Process(simulator, processId, timer);
-	out.println("Offer: " + p);
-
+	// create a new process with pid & arrival time
+	Process p = new Process(processId, timer);
 	// add this process to the ready queue
 	this.readyQueue.offer(p);
-
     }
 
     /**
-     * a user process makes a system call
+     * user process makes a system call
      */
     public void systemCallIORequest(String deviceID, long timer,
 	    Simulator simulator) {
-	out.println("systemCallIORequest pid: " + this.running
+	out.println("systemCallIORequest pid: " + this.readyQueue.peek()
 		+ ", device: " + deviceID);
-	// add process to the io waiting queue
-	Process p = this.running;
-	IODevice device = this.devices.get(deviceID);
-	device.offer(p);
+	//remove running process from the head of the ready queue
+	Process p = this.readyQueue.poll();
 	
-	// set the current running process to idle process
-	// another process will be selected in the running method call
-	this.running = this.idleProcess;
+	IODevice device = this.devices.get(deviceID);
+	//place this process at the end of this io device queue
+	device.offer(p);
 
 	// count context switches
 	this.savesCount++;
@@ -75,17 +70,20 @@ public class FCFS implements pssimulator.Kernel {
      */
     public void systemCallProcessTermination(long timer, Simulator simulator) {
 	// get the running process
-	Process p = this.running;
+	Process p = this.readyQueue.poll();
 	// set the completion time
-	// the completion is computed as timer - arrival time
 	p.setCompletionTime(timer);
 	
 	//add the terminated process to a list, for wmt & tat purposes
 	this.terminatedProcess.add(p);
 	
-	//set running process to idle process
-	this.running = this.idleProcess;
-	out.println("Terminate pid: " + this.running + "TAT " + this.running.getCompletionTime());
+	//update the system idle sate
+	if(!this.readyQueue.isEmpty())
+	    this.isIdle = false; //there are still process
+	else //there are no other process
+	    this.isIdle = true;
+	
+	//out.println("Terminate pid: " + this.readyQueue.peek() + "TAT " + this.readyQueue.peek().getCompletionTime());
     }
 
     /**
@@ -94,42 +92,39 @@ public class FCFS implements pssimulator.Kernel {
     public void interruptIODevice(String deviceID, long timer,
 	    Simulator simulator) {
 	out.println("interruptIODevice " + deviceID + ", running pid: "
-		+ this.running);
+		+ this.readyQueue.peek());
 
-	// get the process from the io waiting queue and put it back into the
-	// ready queue
+	//remove process from device queue
 	IODevice device = this.devices.get(deviceID);
 	Process p = device.poll();
+	// and place it in ready queue
 	this.readyQueue.offer(p);
-
-	// start waiting timer, because the process is at the end of the ready queue
+	// start waiting timer, thus the process is now waiting 
 	p.startWaitingTimer(timer);
     }
 
     public void interruptPreemption(long timer, Simulator simulator) {
-	//nothing do  ere
+	//do nothing here
     }
 
     /**
-     * scheduling user processes
+     * return currently running process
      */
     public String running(long timer, Simulator sim) {
-	sim.queryOverallTime(this.running.getId());
-
-	// if system is idle then poll the next process from the ready queue
-	if (this.running.equals(idleProcess)) {
-	    if (!this.readyQueue.isEmpty()) {
-		Process p = this.readyQueue.poll();
-		p.finishWatingTimer(timer);
-		this.running = p;
-	    } else {
-		this.running = this.idleProcess;
+	Process current;
+	//check if system is in a idle state
+	if (this.isIdle==false) {
+	    Process p = this.readyQueue.peek(); //get the head of this queue / current running process
+	    if (p.isWaiting()) { 
+		p.stopWaitingTimer(timer);
 	    }
+	   current = p;
+	} else {
+	    current = this.idleProcess;
 	}
 
-	out.println("running pid: " + this.running + ", WT: " + this.running.getWaitingTime() + ", current timer: "+timer);
-
-	return this.running.getId();
+        this.out.println("running pid: " + current + ", WT: " + current.getWaitingTime() + ", current timer: "+timer);
+        return current.getId();
     }
 
     public void terminate(long timer, SimulatorStatistics sim) {

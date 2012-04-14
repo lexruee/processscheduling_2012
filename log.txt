@@ -1,0 +1,10 @@
+Instantiation took 0.062 second(s)
+ System Time: 205	[100.00%]
+   User Time: 205	[100.00%]
+   Idle Time: 0	[0.00%]
+
+   System Calls: 32
+Registers Saves: 11
+
+Av. Turnaround Time: 160
+     Wait Mean Time: 106
