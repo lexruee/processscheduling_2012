@@ -14,6 +14,8 @@ public class RR implements pssimulator.Kernel {
     private static final long TIME_QUANTUM = 2;
     
     public Queue<Process> readyQueue = new LinkedList<Process>();
+    // note: head of this queue is always the currently running process
+    // if this is empty, then the currently running process is the idle process
     public List<Process> terminatedProcess = new LinkedList<Process>();
     public Map<String, IODevice> devices = new HashMap<String, IODevice>();
     public Process idleProcess = new Process("Idle", 0);
@@ -31,7 +33,7 @@ public class RR implements pssimulator.Kernel {
 	this.devices.put(deviceID, new IODevice(deviceID));
     }
 
-    /**
+    /*
      * create a  new process
      */
     public void systemCallProcessCreation(String processId, long timer,
@@ -40,9 +42,12 @@ public class RR implements pssimulator.Kernel {
 	Process p = new Process(processId, timer);
 	// add this process to the ready queue
 	this.readyQueue.offer(p);
+	
+	this.interruptPreemptionHelper(simulator);
     }
 
-    /**
+
+    /*
      * user process makes a system call
      */
     public void systemCallIORequest(String deviceID, long timer,
@@ -60,7 +65,7 @@ public class RR implements pssimulator.Kernel {
 	this.savesCount++;
     }
 
-    /**
+    /*
      * user process terminates
      */
     public void systemCallProcessTermination(long timer, Simulator simulator) {
@@ -78,16 +83,14 @@ public class RR implements pssimulator.Kernel {
 	else //there are no other process
 	    this.isIdle = true;
 	
-	//out.println("Terminate pid: " + this.readyQueue.peek() + "TAT " + this.readyQueue.peek().getCompletionTime());
+	this.interruptPreemptionHelper(simulator);
     }
 
-    /**
+    /*
      * an io device interrupt occurs
      */
     public void interruptIODevice(String deviceID, long timer,
 	    Simulator simulator) {
-	out.println("interruptIODevice " + deviceID + ", running pid: "
-		+ this.readyQueue.peek());
 
 	//remove process from device queue
 	IODevice device = this.devices.get(deviceID);
@@ -96,24 +99,45 @@ public class RR implements pssimulator.Kernel {
 	this.readyQueue.offer(p);
 	// start waiting timer, thus the process is now waiting 
 	p.startWaitingTimer(timer);
+	
+	this.interruptPreemptionHelper(simulator);
     }
 
     public void interruptPreemption(long timer, Simulator simulator) {
-	//nothing do  ere
+	if (this.readyQueue.size() > 1) {
+	    Process current = this.readyQueue.peek();
+	    if (simulator.queryBurstRemainingTime(current.getId()) >= 0) {
+		//swap current process with the next process in the ready queue
+		current = this.readyQueue.poll();
+		//start waiting timer, since the process is now waiting in the ready queue
+		current.startWaitingTimer(timer);
+		this.readyQueue.offer(current);
+		
+		//count context switches
+		this.savesCount++;
+	    }
+	}
+
+	this.interruptPreemptionHelper(simulator);
+    }
+    
+    private void interruptPreemptionHelper(Simulator simulator) {
+	if(this.readyQueue.size()!=0)
+	    simulator.schedulePreemptionInterrupt(RR.TIME_QUANTUM);
+	
     }
 
-    /**
+    /*
      * return currently running process
      */
     public String running(long timer, Simulator sim) {
 	Process current;
-	//check if system is in a idle state
-	if (this.isIdle==false) {
-	    Process p = this.readyQueue.peek(); //get the head of this queue / current running process
-	    if (p.isWaiting()) { 
-		p.stopWaitingTimer(timer);
+	if(this.readyQueue.size()!=0){
+	    current = this.readyQueue.peek();
+	    //check if head of ready queue was waiting
+	    if(current.isWaiting()==true){
+		current.stopWaitingTimer(timer);
 	    }
-	   current = p;
 	} else {
 	    current = this.idleProcess;
 	}

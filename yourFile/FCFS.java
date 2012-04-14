@@ -19,6 +19,8 @@ import pssimulator.SimulatorStatistics;
 public class FCFS implements pssimulator.Kernel {
     
     public Queue<Process> readyQueue = new LinkedList<Process>();
+    // note: head of this queue is always the currently running process
+    // if this is empty, then the currently running process is the idle process
     public List<Process> terminatedProcess = new LinkedList<Process>();
     public Map<String, IODevice> devices = new HashMap<String, IODevice>();
     public Process idleProcess = new Process("Idle", 0);
@@ -52,8 +54,6 @@ public class FCFS implements pssimulator.Kernel {
      */
     public void systemCallIORequest(String deviceID, long timer,
 	    Simulator simulator) {
-	out.println("systemCallIORequest pid: " + this.readyQueue.peek()
-		+ ", device: " + deviceID);
 	//remove running process from the head of the ready queue
 	Process p = this.readyQueue.poll();
 	
@@ -82,8 +82,6 @@ public class FCFS implements pssimulator.Kernel {
 	    this.isIdle = false; //there are still process
 	else //there are no other process
 	    this.isIdle = true;
-	
-	//out.println("Terminate pid: " + this.readyQueue.peek() + "TAT " + this.readyQueue.peek().getCompletionTime());
     }
 
     /**
@@ -91,9 +89,6 @@ public class FCFS implements pssimulator.Kernel {
      */
     public void interruptIODevice(String deviceID, long timer,
 	    Simulator simulator) {
-	out.println("interruptIODevice " + deviceID + ", running pid: "
-		+ this.readyQueue.peek());
-
 	//remove process from device queue
 	IODevice device = this.devices.get(deviceID);
 	Process p = device.poll();
